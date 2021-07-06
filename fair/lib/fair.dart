@@ -6,7 +6,6 @@
 
 library fair;
 
-export 'package:fair_version/fair_version.dart';
 
 export 'src/annotation.dart';
 export 'src/app.dart';

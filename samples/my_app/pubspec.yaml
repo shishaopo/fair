@@ -18,7 +18,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ^2.13.4
+  flutter: ^2.2.3
 
 dependencies:
   flutter:
@@ -39,9 +40,9 @@ dev_dependencies:
     path: ../../fair_compiler
 
 # Switch to another stable flutter version
-#dependency_overrides:
-#  fair_version:
-#    path: ../../fair_version/flutter_1_22_6
+dependency_overrides:
+  fair_version:
+    path: ../../fair_version/flutter_2_2_3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

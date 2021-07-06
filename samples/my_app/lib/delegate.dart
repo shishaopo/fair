@@ -28,7 +28,7 @@ class MyHomePageDelegate extends FairDelegate {
   Map<String, Function> bindFunction() {
     var fun = super.bindFunction();
     fun['_incrementCounter'] = _incrementCounter;
-    fun['ThemeStyle.headline4'] = (props) => ThemeStyle.headline4(context);
+    // fun['ThemeStyle.headline4'] = (props) => ThemeStyle.headline4(context);
     return fun;
   }
 }

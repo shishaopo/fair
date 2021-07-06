@@ -18,7 +18,7 @@ import 'package:process/process.dart';
 mixin FlatCompiler {
   final command = 'flatc';
 
-  File _fbs;
+  File? _fbs;
 
   Future<R> compile(String jsonPath) async {
     var content = '';
@@ -31,7 +31,7 @@ mixin FlatCompiler {
         '-o',
         File(jsonPath).parent.absolute.path,
         '-b',
-        _fbs.absolute.path,
+        _fbs?.absolute.path ?? '',
         jsonPath
       ]);
       if (result.exitCode != 0) {
@@ -54,7 +54,7 @@ mixin FlatCompiler {
 }
 
 mixin FairCompiler {
-  static File _fair;
+  static File? _fair;
   final _startTag = '#####################fairc output begin#################';
   final _endTag = '#####################fairc output end#################';
   final command = 'dart';
@@ -66,8 +66,8 @@ mixin FairCompiler {
     if (cache.existsSync()) {
       return true;
     }
-    var result = await head(
-        'https://github.com/wuba/fair/raw/$branch/assets/$version.fairc.tar.gz');
+    var result = await head(Uri.parse(
+        'https://github.com/wuba/fair/raw/$branch/assets/$version.fairc.tar.gz'));
     return result.statusCode == 200;
   }
 
@@ -88,7 +88,7 @@ mixin FairCompiler {
     return result != null;
   }
 
-  Future<File> _bin(BuildStep buildStep) async {
+  Future<File?> _bin(BuildStep buildStep) async {
     var v = File(path.join(
             path.dirname(path.dirname(Platform.resolvedExecutable)), 'version'))
         .readAsStringSync()
@@ -97,7 +97,7 @@ mixin FairCompiler {
       stderr.writeln('not supported flutter version, with dart-$v');
       return Future.value();
     }
-    if (_fair == null || !_fair.existsSync()) {
+    if (_fair == null || !_fair!.existsSync()) {
       var cache =
           await File(path.join('.dart_tool', 'build', 'fairc', '${v.hashCode}'))
               .create(recursive: true);
@@ -142,7 +142,7 @@ mixin FairCompiler {
         await File(path.join('.dart_tool', 'build', 'fairc', 'fair_bundle.fbs'))
             .create(recursive: true);
     await fbs.writeAsBytes(await buildStep.readAsBytes(
-        AssetId.resolve('package:fair_compiler/src/fair_bundle.fbs')));
+        AssetId.resolve(Uri.parse('package:fair_compiler/src/fair_bundle.fbs'))));
     return localCompiler;
   }
 
@@ -190,7 +190,7 @@ mixin FairCompiler {
 
 class R {
   final bool success;
-  final String data;
+  final String? data;
   final String message;
 
   R._(this.success, this.data, this.message);

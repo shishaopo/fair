@@ -10,7 +10,7 @@ class FairWell {
   final String tag;
 
   /// Asset path or http url
-  final String path;
+  final String? path;
 
   const FairWell(this.tag, {this.path});
 }

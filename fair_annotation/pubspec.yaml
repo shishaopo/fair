@@ -1,10 +1,11 @@
 name: fair_annotation
 description: Annotation package for Flutter Fair, work with fair compiler.
-version: 0.2.0
+version: 0.2.1
 homepage: https://fair.58.com/
 
 environment:
-  sdk: '>=2.7.0 <3.0.0'
+  sdk: ^2.13.4
+  flutter: ^2.2.3
 
 dev_dependencies:
   pedantic: ^1.8.0
