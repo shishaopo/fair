@@ -8,7 +8,7 @@ import 'custom_calendar.dart';
 
 class CalendarPopupView extends StatefulWidget {
   const CalendarPopupView(
-      {Key key,
+      {Key? key,
       this.initialStartDate,
       this.initialEndDate,
       this.onApplyClick,
@@ -18,23 +18,23 @@ class CalendarPopupView extends StatefulWidget {
       this.maximumDate})
       : super(key: key);
 
-  final DateTime minimumDate;
-  final DateTime maximumDate;
+  final DateTime? minimumDate;
+  final DateTime? maximumDate;
   final bool barrierDismissible;
-  final DateTime initialStartDate;
-  final DateTime initialEndDate;
-  final Function(DateTime, DateTime) onApplyClick;
+  final DateTime? initialStartDate;
+  final DateTime? initialEndDate;
+  final Function(DateTime, DateTime)? onApplyClick;
 
-  final Function onCancelClick;
+  final Function? onCancelClick;
   @override
   _CalendarPopupViewState createState() => _CalendarPopupViewState();
 }
 
 class _CalendarPopupViewState extends State<CalendarPopupView>
     with TickerProviderStateMixin {
-  AnimationController animationController;
-  DateTime startDate;
-  DateTime endDate;
+  AnimationController? animationController;
+  DateTime? startDate;
+  DateTime? endDate;
 
   @override
   void initState() {
@@ -46,13 +46,13 @@ class _CalendarPopupViewState extends State<CalendarPopupView>
     if (widget.initialEndDate != null) {
       endDate = widget.initialEndDate;
     }
-    animationController.forward();
+    animationController?.forward();
     super.initState();
   }
 
   @override
   void dispose() {
-    animationController.dispose();
+    animationController?.dispose();
     super.dispose();
   }
 
@@ -62,11 +62,11 @@ class _CalendarPopupViewState extends State<CalendarPopupView>
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: AnimatedBuilder(
-          animation: animationController,
-          builder: (BuildContext context, Widget child) {
+          animation: animationController!,
+          builder: (BuildContext context, Widget? child) {
             return AnimatedOpacity(
               duration: const Duration(milliseconds: 100),
-              opacity: animationController.value,
+              opacity: animationController!.value,
               child: InkWell(
                 splashColor: Colors.transparent,
                 focusColor: Colors.transparent,
@@ -175,10 +175,10 @@ class _CalendarPopupViewState extends State<CalendarPopupView>
                               height: 1,
                             ),
                             CustomCalendarView(
-                              minimumDate: widget.minimumDate,
-                              maximumDate: widget.maximumDate,
-                              initialEndDate: widget.initialEndDate,
-                              initialStartDate: widget.initialStartDate,
+                              minimumDate: widget.minimumDate!,
+                              maximumDate: widget.maximumDate!,
+                              initialEndDate: widget.initialEndDate!,
+                              initialStartDate: widget.initialStartDate!,
                               startEndDateChange: (DateTime startDateData,
                                   DateTime endDateData) {
                                 setState(() {
@@ -216,7 +216,7 @@ class _CalendarPopupViewState extends State<CalendarPopupView>
                                         // animationController.reverse().then((f) {
 
                                         // });
-                                        widget.onApplyClick(startDate, endDate);
+                                        widget!.onApplyClick!(startDate!, endDate!);
                                         Navigator.pop(context);
                                       } catch (_) {}
                                     },

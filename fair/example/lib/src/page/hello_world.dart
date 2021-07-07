@@ -17,7 +17,7 @@ class HelloWorldPage extends StatefulWidget {
 
 class _State extends State<HelloWorldPage> {
   @FairWell('_platform')
-  final String _platform = 'Fair v$fairVersion';
+  final String _platform = 'Fair v0.2.1';
   @FairWell('_count')
   int _count = 0;
 

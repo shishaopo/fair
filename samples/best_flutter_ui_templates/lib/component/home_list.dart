@@ -7,12 +7,12 @@ import '../app_theme.dart';
 
 @FairPatch()
 class HomeListView extends StatelessWidget {
-  const HomeListView({Key key, this.imagePath, this.callBack}) : super(key: key);
+  const HomeListView({Key? key,required this.imagePath, this.callBack}) : super(key: key);
 
   @FairWell('imagePath')
   final String imagePath;
   @FairWell('callBack')
-  final VoidCallback callBack;
+  final VoidCallback? callBack;
 
   @override
   Widget build(BuildContext context) {

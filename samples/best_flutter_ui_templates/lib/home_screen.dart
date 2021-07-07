@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'model/homelist.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key key}) : super(key: key);
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -14,7 +14,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   List<HomeList> homeList = HomeList.homeList;
-  AnimationController animationController;
+  AnimationController? animationController;
   bool multiple = true;
 
   @override
@@ -31,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   void dispose() {
-    animationController.dispose();
+    animationController!.dispose();
     super.dispose();
   }
 
@@ -72,15 +72,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                 final Animation<double> animation =
                                     Tween<double>(begin: 0.0, end: 1.0).animate(
                                   CurvedAnimation(
-                                    parent: animationController,
+                                    parent: animationController!,
                                     curve: Interval((1 / count) * index, 1.0,
                                         curve: Curves.fastOutSlowIn),
                                   ),
                                 );
-                                animationController.forward();
+                                animationController!.forward();
                                 return AnimatedBuilder(
-                                  animation: animationController,
-                                  builder: (BuildContext context, Widget child) {
+                                  animation: animationController!,
+                                  builder: (BuildContext context, Widget? child) {
                                     return FadeTransition(
                                         opacity: animation,
                                         child: Transform(
@@ -101,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                                       builder: (BuildContext
                                                               context) =>
                                                           homeList[index]
-                                                              .navigateScreen,
+                                                              .navigateScreen!,
                                                     ),
                                                   );
                                                 },

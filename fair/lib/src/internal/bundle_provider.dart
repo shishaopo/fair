@@ -73,7 +73,7 @@ class _DefaultProvider extends BundleLoader {
   Future<Map?> _http(String url, bool isFlexBuffer,
       {Map<String, String>? headers, FairDecoder? decode}) async {
     var start = DateTime.now().millisecondsSinceEpoch;
-    var response = await client.get(url, headers: headers);
+    var response = await client.get(Uri.parse(url), headers: headers);
     var end = DateTime.now().millisecondsSinceEpoch;
     if (response.statusCode != 200) {
       throw FlutterError('code=${response.statusCode}, unable to load : $url');

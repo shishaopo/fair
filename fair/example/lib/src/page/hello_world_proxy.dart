@@ -23,7 +23,7 @@ class HelloWorldDelegate extends FairDelegate {
   Map<String, PropertyValue> bindValue() {
     var pros = super.bindValue();
     pros.addAll({
-      '_platform': () => 'Fair v$fairVersion',
+      '_platform': () => 'Fair v0.2.1',
       '_count': () => _count,
     });
     return pros;

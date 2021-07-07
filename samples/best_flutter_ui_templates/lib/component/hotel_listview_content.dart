@@ -26,7 +26,7 @@ class HotelListViewContent extends StatelessWidget {
 
   String distance() => '${hotelData.dist.toStringAsFixed(1)} km to city';
 
-  HotelListViewContent({Key key, this.callback, this.hotelData})
+  HotelListViewContent({Key? key,required this.callback,required this.hotelData})
       : super(key: key);
 
   @override
