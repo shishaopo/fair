@@ -23,9 +23,9 @@ mixin AppState {
 
   void setup(
     bool profile,
-    Map<String, FairDelegateBuilder> builder,
-    GeneratedModule generated,
-    Map<String, FairModuleBuilder> module,
+    Map<String, FairDelegateBuilder>? builder,
+    GeneratedModule? generated,
+    Map<String, FairModuleBuilder>? module,
   ) {
     modules.addAll(module);
     GlobalState.instance().init(profile, builder);
@@ -39,8 +39,8 @@ mixin AppState {
       state.state2key,
       () => BindingData(
         modules,
-        functions: delegate.bindFunction(),
-        values: delegate.bindValue(),
+        functions: delegate?.bindFunction(),
+        values: delegate?.bindValue(),
       ),
     );
   }

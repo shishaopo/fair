@@ -10,11 +10,17 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  fair_annotation: ^0.2.0
-  fair_version: ^0.2.0
+  fair_annotation:
+    git:
+      url: https://github.com/shishaopo/fair.git
+      path: fair_annotation
+  fair_version:
+    git:
+      url: https://github.com/shishaopo/fair.git
+      path: fair_version/flutter_2_2_3
   flat_buffers: ^1.12.0
-  url_launcher: ^5.7.2
-  http: ^0.12.2
+  url_launcher: ^6.0.9
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:

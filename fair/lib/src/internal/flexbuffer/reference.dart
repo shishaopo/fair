@@ -8,6 +8,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:typed_data';
+
 import 'types.dart';
 
 /// Main class to read a value out of a FlexBuffer.
@@ -18,9 +19,9 @@ class Reference {
   final int _offset;
   final BitWidth _parentWidth;
   final String _path;
-  int _byteWidth;
-  ValueType _valueType;
-  int _length;
+  late int _byteWidth;
+  late ValueType _valueType;
+  int? _length;
 
   Reference._(this._buffer, this._offset, this._parentWidth, int packedType,
       this._path) {
@@ -74,7 +75,7 @@ class Reference {
   bool get isMap => _valueType == ValueType.Map;
 
   /// If this [isBool], returns the bool value. Otherwise, returns null.
-  bool get boolValue {
+  bool? get boolValue {
     if (_valueType == ValueType.Bool) {
       return _readInt(_offset, _parentWidth) != 0;
     }
@@ -84,7 +85,7 @@ class Reference {
   /// Returns an [int], if the underlying value can be represented as an int.
   ///
   /// Otherwise returns [null].
-  int get intValue {
+  int? get intValue {
     if (_valueType == ValueType.Int) {
       return _readInt(_offset, _parentWidth);
     }
@@ -103,7 +104,7 @@ class Reference {
   /// Returns [double], if the underlying value [isDouble].
   ///
   /// Otherwise returns [null].
-  double get doubleValue {
+  double? get doubleValue {
     if (_valueType == ValueType.Float) {
       return _readFloat(_offset, _parentWidth);
     }
@@ -116,12 +117,12 @@ class Reference {
   /// Returns [num], if the underlying value is numeric, be it int uint, or float (direct or indirect).
   ///
   /// Otherwise returns [null].
-  num get numValue => doubleValue ?? intValue;
+  num? get numValue => doubleValue ?? intValue;
 
   /// Returns [String] value or null otherwise.
   ///
   /// This method performers a utf8 decoding, as FlexBuffers format stores strings in utf8 encoding.
-  String get stringValue {
+  String? get stringValue {
     if (_valueType == ValueType.String || _valueType == ValueType.Key) {
       return utf8.decode(_buffer.buffer.asUint8List(_indirect, length));
     }
@@ -129,7 +130,7 @@ class Reference {
   }
 
   /// Returns [Uint8List] value or null otherwise.
-  Uint8List get blobValue {
+  Uint8List? get blobValue {
     if (_valueType == ValueType.Blob) {
       return _buffer.buffer.asUint8List(_indirect, length);
     }
@@ -210,7 +211,7 @@ class Reference {
   /// If the values is a string or a blob, the length reflects a number of bytes the value occupies (strings are encoded in utf8 format).
   int get length {
     if (_length != null) {
-      return _length;
+      return _length!;
     }
     // needs to be checked before more generic isAVector
     if (ValueTypeUtils.isFixedTypedVector(_valueType)) {
@@ -243,7 +244,7 @@ class Reference {
     } else {
       _length = 1;
     }
-    return _length;
+    return _length!;
   }
 
   /// Returns a minified JSON representation of the underlying FlexBuffer value.
@@ -253,7 +254,7 @@ class Reference {
   /// Blob values are represented as base64 encoded string.
   String get json {
     if (_valueType == ValueType.Bool) {
-      return boolValue ? 'true' : 'false';
+      return boolValue == true ? 'true' : 'false';
     }
     if (_valueType == ValueType.Null) {
       return 'null';
@@ -264,8 +265,8 @@ class Reference {
     if (_valueType == ValueType.String) {
       return jsonEncode(stringValue);
     }
-    if (_valueType == ValueType.Blob) {
-      return jsonEncode(base64Encode(blobValue));
+    if (_valueType == ValueType.Blob && boolValue != null) {
+      return jsonEncode(base64Encode(blobValue!));
     }
     if (ValueTypeUtils.isAVector(_valueType)) {
       final result = StringBuffer();
@@ -356,7 +357,7 @@ class Reference {
     }
   }
 
-  int _keyIndex(String key) {
+  int? _keyIndex(String key) {
     final input = utf8.encode(key);
     final keysVectorOffset = _indirect - _byteWidth * 3;
     final indirectOffset = keysVectorOffset -
@@ -428,7 +429,7 @@ class _VectorIterator
     with IterableMixin<Reference>
     implements Iterator<Reference> {
   final Reference _vector;
-  int index;
+  late int index;
 
   _VectorIterator(this._vector) {
     index = -1;
@@ -449,7 +450,7 @@ class _VectorIterator
 
 class _MapKeyIterator with IterableMixin<String> implements Iterator<String> {
   final Reference _map;
-  int index;
+  late int index;
 
   _MapKeyIterator(this._map) {
     index = -1;
@@ -472,7 +473,7 @@ class _MapValueIterator
     with IterableMixin<Reference>
     implements Iterator<Reference> {
   final Reference _map;
-  int index;
+  late int index;
 
   _MapValueIterator(this._map) {
     index = -1;

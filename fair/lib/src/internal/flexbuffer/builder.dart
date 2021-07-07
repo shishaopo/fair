@@ -12,16 +12,16 @@ import 'types.dart';
 
 /// The main builder class for creation of a FlexBuffer.
 class Builder {
-  ByteData _buffer;
-  List<_StackValue> _stack;
-  List<_StackPointer> _stackPointers;
-  int _offset;
-  bool _finished;
-  Map<String, _StackValue> _stringCache;
-  Map<String, _StackValue> _keyCache;
-  Map<_KeysHash, _StackValue> _keyVectorCache;
-  Map<int, _StackValue> _indirectIntCache;
-  Map<double, _StackValue> _indirectDoubleCache;
+  late ByteData _buffer;
+  late List<_StackValue> _stack;
+  late List<_StackPointer> _stackPointers;
+  late int _offset;
+  late bool _finished;
+  late Map<String, _StackValue> _stringCache;
+  late Map<String, _StackValue> _keyCache;
+  late Map<_KeysHash, _StackValue> _keyVectorCache;
+  late Map<int, _StackValue> _indirectIntCache;
+  late Map<double, _StackValue> _indirectDoubleCache;
 
   /// Instantiate the builder if you intent to gradually build up the buffer by calling
   /// add... methods and calling [finish] to receive the the resulting byte array.
@@ -113,7 +113,7 @@ class Builder {
   void addString(String value) {
     _integrityCheckOnValueAddition();
     if (_stringCache.containsKey(value)) {
-      _stack.add(_stringCache[value]);
+      _stack.add(_stringCache[value]!);
       return;
     }
     final utf8String = utf8.encode(value);
@@ -137,7 +137,7 @@ class Builder {
   void addKey(String value) {
     _integrityCheckOnKeyAddition();
     if (_keyCache.containsKey(value)) {
-      _stack.add(_keyCache[value]);
+      _stack.add(_keyCache[value]!);
       return;
     }
     final utf8String = utf8.encode(value);
@@ -179,7 +179,7 @@ class Builder {
   void addIntIndirectly(int value, {bool cache = false}) {
     _integrityCheckOnValueAddition();
     if (_indirectIntCache.containsKey(value)) {
-      _stack.add(_indirectIntCache[value]);
+      _stack.add(_indirectIntCache[value]!);
       return;
     }
     final stackValue = _StackValue.withInt(value);
@@ -204,7 +204,7 @@ class Builder {
   void addDoubleIndirectly(double value, {bool cache = false}) {
     _integrityCheckOnValueAddition();
     if (cache && _indirectDoubleCache.containsKey(value)) {
-      _stack.add(_indirectDoubleCache[value]);
+      _stack.add(_indirectDoubleCache[value]!);
       return;
     }
     final stackValue = _StackValue.withDouble(value);
@@ -317,7 +317,7 @@ class Builder {
   }
 
   _StackValue _createVector(int start, int vecLength, int step,
-      [_StackValue keys]) {
+      [_StackValue? keys]) {
     var bitWidth = BitWidthUtil.uwidth(vecLength);
     var prefixElements = 1;
     if (keys != null) {
@@ -537,29 +537,34 @@ class Builder {
 }
 
 class _StackValue {
-  Object _value;
-  int _offset;
-  ValueType _type;
-  BitWidth _width;
+  Object? _value;
+  int _offset = 0;
+  late ValueType _type;
+  late BitWidth _width;
+
   _StackValue.withNull() {
     _type = ValueType.Null;
     _width = BitWidth.width8;
   }
+
   _StackValue.withInt(int value) {
     _type = value != null ? ValueType.Int : ValueType.Null;
     _width = BitWidthUtil.width(value);
     _value = value;
   }
+
   _StackValue.withBool(bool value) {
     _type = value != null ? ValueType.Bool : ValueType.Null;
     _width = BitWidth.width8;
     _value = value;
   }
+
   _StackValue.withDouble(double value) {
     _type = value != null ? ValueType.Float : ValueType.Null;
     _width = BitWidthUtil.width(value);
     _value = value;
   }
+
   _StackValue.withOffset(int value, ValueType type, BitWidth width) {
     _offset = value;
     _type = type;
@@ -594,33 +599,33 @@ class _StackValue {
 
   List<int> asU8List(BitWidth width) {
     if (ValueTypeUtils.isNumber(_type)) {
-      if (_type == ValueType.Float) {
+      if (_type == ValueType.Float && _value is double) {
         if (width == BitWidth.width32) {
           final result = ByteData(4);
-          result.setFloat32(0, _value, Endian.little);
+          result.setFloat32(0, _value as double, Endian.little);
           return result.buffer.asUint8List();
         } else {
           final result = ByteData(8);
-          result.setFloat64(0, _value, Endian.little);
+          result.setFloat64(0, _value as double, Endian.little);
           return result.buffer.asUint8List();
         }
-      } else {
+      } else if (_value is int) {
         switch (width) {
           case BitWidth.width8:
             final result = ByteData(1);
-            result.setInt8(0, _value);
+            result.setInt8(0, _value as int);
             return result.buffer.asUint8List();
           case BitWidth.width16:
             final result = ByteData(2);
-            result.setInt16(0, _value, Endian.little);
+            result.setInt16(0, _value as int, Endian.little);
             return result.buffer.asUint8List();
           case BitWidth.width32:
             final result = ByteData(4);
-            result.setInt32(0, _value, Endian.little);
+            result.setInt32(0, _value as int, Endian.little);
             return result.buffer.asUint8List();
           case BitWidth.width64:
             final result = ByteData(8);
-            result.setInt64(0, _value, Endian.little);
+            result.setInt64(0, _value as int, Endian.little);
             return result.buffer.asUint8List();
         }
       }
@@ -630,9 +635,9 @@ class _StackValue {
       result.setInt8(0, 0);
       return result.buffer.asUint8List();
     }
-    if (_type == ValueType.Bool) {
+    if (_type == ValueType.Bool && _value is bool) {
       final result = ByteData(1);
-      result.setInt8(0, _value ? 1 : 0);
+      result.setInt8(0, (_value as bool) ? 1 : 0);
       return result.buffer.asUint8List();
     }
 
@@ -662,6 +667,7 @@ class _StackValue {
 class _StackPointer {
   int stackPosition;
   bool isVector;
+
   _StackPointer(this.stackPosition, this.isVector);
 }
 

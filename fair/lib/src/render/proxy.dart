@@ -22,7 +22,7 @@ class ProxyMirror with P {
   ];
   final _generatedMapping = <String, bool>{};
 
-  void addGeneratedBinding(GeneratedModule generated) {
+  void addGeneratedBinding(GeneratedModule? generated) {
     if (generated == null) {
       return;
     }
@@ -42,18 +42,21 @@ class ProxyMirror with P {
 
   bool isWidget(String key) {
     final internal = widgetNames.containsKey(key);
-    return internal ? widgetNames[key] : _generatedMapping[key];
+    if (internal) {
+      return widgetNames[key]!;
+    }
+    return _generatedMapping[key] ?? false;
   }
 
   W<dynamic> evaluate(
-      BuildContext context, BindingData bindingData, String text) {
+      BuildContext context, BindingData? bindingData, String text) {
     var pre = '';
     for (var exp in _expressions) {
       if (!exp.hitTest(text, pre)) {
         continue;
       }
       var result = exp.onEvaluate(this, bindingData, text, pre);
-      pre = result.exp;
+      pre = result.exp ?? '';
       if (result.valid) {
         return W<dynamic>(result.data, result.needBinding);
       }

@@ -4,6 +4,7 @@
  * found in the LICENSE file.
  */
 
+import 'package:fair/src/render/proxy.dart';
 import 'package:fair/src/utils.dart';
 import 'package:flutter/material.dart';
 
@@ -17,32 +18,32 @@ import '../widgets/version.dart';
 import 'builder.dart';
 
 class _DataSource {
-  final Map layout;
+  final Map? layout;
   final Map data;
 
-  _DataSource({this.layout, this.data});
+  _DataSource({required this.layout, required this.data});
 }
 
 class Decoder {
   final FairBundle _loader = FairBundle();
   final FairDecoder _decoder = FairDecoder();
   final String page;
-  final Map<String, dynamic> dataSource;
-  final String url;
-  _DataSource _source;
+  final Map<String, dynamic>? dataSource;
+  final String? url;
+  _DataSource? _source;
 
-  Decoder(this.page, {this.dataSource, this.url});
+  Decoder(this.page, {required this.dataSource, required this.url});
 
   Future<void> resolve(BuildContext context) async {
     var jsonBean = await _loader.obtain(context).onLoad(url, _decoder,
         cache: true, h: const {'fairVersion': '$fairVersion#$flutterVersion'});
     var data = <dynamic, dynamic>{};
-    var d = jsonBean.remove('data');
+    var d = jsonBean?.remove('data');
     if (d != null) {
       data.addAll(d);
     }
     if (dataSource != null) {
-      data.addAll(dataSource);
+      data.addAll(dataSource!);
     }
     var s = _DataSource(layout: jsonBean, data: data);
     _source = s;
@@ -52,22 +53,25 @@ class Decoder {
   Widget toWidget(BuildContext context) {
     return trackExecution('[Fair] parse as widget: $page', () {
       var source = _source;
-      var layout = source.layout;
-      var data = source.data;
-      var widget = _convert(context, layout, data: data);
+      var layout = source?.layout;
+      var data = source?.data;
+      var widget = _convert(context, layout!, data: data);
       return widget;
     });
   }
 
-  Widget _convert(BuildContext context, Map map, {Map data}) {
+  Widget _convert(BuildContext context, Map map, {Map? data}) {
     var app = FairApp.of(context);
-    var bound = app.bindData[page];
+    var bound = app?.bindData[page];
     if (data != null && data.isNotEmpty) {
       log('[Fair] binding data => $data');
-      bound ??= BindingData(app.modules);
+      bound ??= BindingData(app!.modules);
       bound.data = data;
     }
-    var proxy = app.proxy;
+    ProxyMirror? proxy;
+    if (app?.proxy is ProxyMirror) {
+      proxy = app?.proxy as ProxyMirror;
+    }
     Widget w = DynamicWidgetBuilder(proxy, page, bound, bundle: url)
             .convert(context, map) ??
         WarningWidget(

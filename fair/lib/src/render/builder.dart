@@ -22,10 +22,10 @@ abstract class Binding {}
 
 abstract class DynamicBuilder {
   final String tag;
-  final ProxyMirror proxyMirror;
+  final ProxyMirror? proxyMirror;
   final String page;
-  final BindingData bound;
-  final String bundle;
+  final BindingData? bound;
+  final String? bundle;
 
   DynamicBuilder(this.tag, this.proxyMirror, this.page, this.bound,
       {this.bundle});
@@ -34,12 +34,12 @@ abstract class DynamicBuilder {
 }
 
 class DynamicWidgetBuilder extends DynamicBuilder {
-  DynamicWidgetBuilder(ProxyMirror proxyMirror, String page, BindingData bound,
-      {String bundle})
+  DynamicWidgetBuilder(ProxyMirror? proxyMirror, String page, BindingData? bound,
+      {String? bundle})
       : super('className', proxyMirror, page, bound, bundle: bundle);
 
   @override
-  dynamic convert(BuildContext context, Map map, {Domain domain}) {
+  dynamic convert(BuildContext context, Map map, {Domain? domain}) {
     assert(map != null, 'bundle map is null');
     var name = map[tag];
     if (name == null) {
@@ -52,16 +52,16 @@ class DynamicWidgetBuilder extends DynamicBuilder {
 
       dynamic mapper = module;
       if (mapper == null) {
-        mapper = bound?.functionOf(name) ?? bound.valueOf(name);
+        mapper = bound?.functionOf(name) ?? bound?.valueOf(name);
         if (mapper != null) {
           return _block(map, context, domain, mapper, name, false,
               forceApply: true);
         }
       }
       if (mapper == null) {
-        mapper = proxyMirror.componentOf(name);
+        mapper = proxyMirror?.componentOf(name);
         final internal = widgetNames.containsKey(name);
-        isWidget = internal ? widgetNames[name] : true;
+        isWidget = internal ? widgetNames[name]! : true;
       }
       assert(mapper != null, '$name is not registered!');
       if (name == 'Sugar.mapEach') {
@@ -83,7 +83,7 @@ class DynamicWidgetBuilder extends DynamicBuilder {
   dynamic _block(
     Map map,
     BuildContext ctx,
-    Domain domain,
+    Domain? domain,
     dynamic fun,
     String name,
     bool widget, {
@@ -110,7 +110,7 @@ class DynamicWidgetBuilder extends DynamicBuilder {
     }
   }
 
-  W<List> _positioned(dynamic paMap, BuildContext context, Domain domain) {
+  W<List> _positioned(dynamic paMap, BuildContext context, Domain? domain) {
     var pa = [];
     var needBinding = false;
     if (paMap is List) {
@@ -120,11 +120,11 @@ class DynamicWidgetBuilder extends DynamicBuilder {
         } else if (domain != null && domain.match(e)) {
           pa.add(domain.bindValue(e));
         } else if (e is String) {
-          var r = proxyMirror.evaluate(context, bound, e);
-          if (r.binding) {
+          var r = proxyMirror?.evaluate(context, bound, e);
+          if (r?.binding == true) {
             needBinding = true;
           }
-          pa.add(r.data);
+          pa.add(r?.data);
         } else {
           pa.add(e);
         }
@@ -137,7 +137,7 @@ class DynamicWidgetBuilder extends DynamicBuilder {
     String tag,
     dynamic naMap,
     BuildContext context,
-    Domain domain,
+    Domain? domain,
   ) {
     var na = <String, dynamic>{};
     var needBinding = false;
@@ -159,14 +159,14 @@ class DynamicWidgetBuilder extends DynamicBuilder {
         } else if (domain != null && domain.match(e)) {
           na[e.key] = domain.bindValue(e as String);
         } else if (e.value is String) {
-          var r = proxyMirror.evaluate(context, bound, e.value);
-          if (r.binding) {
+          var r = proxyMirror?.evaluate(context, bound, e.value);
+          if (r?.binding == true) {
             needBinding = true;
           }
-          if (r.data is FairModule) {
-            na[e.key] = (r.data as FairModule).onCreateComponent(context, null);
+          if (r?.data is FairModule) {
+            na[e.key] = (r!.data as FairModule).onCreateComponent(context, null);
           } else {
-            na[e.key] = r.data;
+            na[e.key] = r?.data;
           }
         } else {
           na[e.key] = e.value;
@@ -182,9 +182,9 @@ class DynamicWidgetBuilder extends DynamicBuilder {
     var source = pa0(map);
     var children = [];
     if (source is String) {
-      var r = proxyMirror.evaluate(context, bound, source);
-      if (r.data != null) {
-        source = r.data;
+      var r = proxyMirror?.evaluate(context, bound, source);
+      if (r?.data != null) {
+        source = r!.data!;
       }
     }
     if (!(source is List)) {

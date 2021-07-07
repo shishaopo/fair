@@ -11,8 +11,8 @@ import 'proxy.dart';
 
 class R {
   final dynamic data;
-  final String exp;
-  static R _empty;
+  final String? exp;
+  static R? _empty;
   final bool needBinding;
 
   R(this.data, {this.exp, this.needBinding = false});
@@ -25,7 +25,7 @@ class R {
 }
 
 abstract class Expression {
-  R onEvaluate(ProxyMirror proxy, BindingData binding, String exp, String pre);
+  R onEvaluate(ProxyMirror proxy, BindingData? binding, String exp, String pre);
 
   /// fail-fast
   bool hitTest(String exp, String pre);
@@ -33,7 +33,8 @@ abstract class Expression {
 
 class ComponentExpression extends Expression {
   @override
-  R onEvaluate(ProxyMirror proxy, BindingData binding, String exp, String pre) {
+  R onEvaluate(
+      ProxyMirror proxy, BindingData? binding, String exp, String pre) {
     var processed = exp.substring(2, exp.length - 1);
     var widget = proxy.componentOf(processed);
     if (widget != null) return R(widget, exp: processed);
@@ -60,12 +61,13 @@ class ComponentExpression extends Expression {
 
 class InlineExpression extends Expression {
   @override
-  R onEvaluate(ProxyMirror proxy, BindingData binding, String exp, String pre) {
+  R onEvaluate(
+      ProxyMirror proxy, BindingData? binding, String exp, String pre) {
     var regexp = RegExp(r'\$\w+');
     var matches = regexp.allMatches(pre);
     var builder = _InlineVariableBuilder(
         matches: matches, data: pre, proxyMirror: proxy, binding: binding);
-    binding.addBindValue(builder);
+    binding?.addBindValue(builder);
     return R(builder, exp: exp, needBinding: true);
   }
 
@@ -77,9 +79,10 @@ class InlineExpression extends Expression {
 
 class WidgetParamExpression extends Expression {
   @override
-  R onEvaluate(ProxyMirror proxy, BindingData binding, String exp, String pre) {
+  R onEvaluate(
+      ProxyMirror proxy, BindingData? binding, String exp, String pre) {
     var widgetParameter = exp.substring(9, exp.length - 1);
-    var value = binding.dataOf(widgetParameter);
+    var value = binding?.dataOf(widgetParameter);
     if (value != null) {
       return R(value, exp: widgetParameter);
     }
@@ -94,12 +97,13 @@ class WidgetParamExpression extends Expression {
 
 class ValueExpression extends Expression {
   @override
-  R onEvaluate(ProxyMirror proxy, BindingData binding, String exp, String pre) {
+  R onEvaluate(
+      ProxyMirror proxy, BindingData? binding, String exp, String pre) {
     var prop =
-        binding?.bindDataOf(pre) ?? binding.modules.moduleOf(pre)?.call();
+        binding?.bindDataOf(pre) ?? binding?.modules.moduleOf(pre)?.call();
     if (prop is ValueNotifier) {
       var data = _PropBuilder(pre, prop, proxy, binding);
-      binding.addBindValue(data);
+      binding?.addBindValue(data);
       return R(data, exp: exp, needBinding: true);
     }
     return R(prop, exp: exp, needBinding: false);
@@ -112,13 +116,13 @@ class ValueExpression extends Expression {
 }
 
 class _BindValueBuilder<T> extends ValueNotifier<T> implements LifeCircle {
-  final String data;
-  final ProxyMirror proxyMirror;
-  final BindingData binding;
-  VoidCallback _listener;
+  final String? data;
+  final ProxyMirror? proxyMirror;
+  final BindingData? binding;
+  VoidCallback? _listener;
   final List<ValueNotifier> _watchedProps = [];
 
-  _BindValueBuilder(this.data, this.proxyMirror, this.binding) : super(null);
+  _BindValueBuilder(this.data, this.proxyMirror, this.binding, T t) : super(t);
 
   @override
   void attach() {
@@ -135,38 +139,44 @@ class _BindValueBuilder<T> extends ValueNotifier<T> implements LifeCircle {
   void detach() {
     if (_listener == null) return;
     _watchedProps.forEach((e) {
-      e.removeListener(_listener);
+      e.removeListener(_listener!);
     });
   }
 }
 
-class _InlineVariableBuilder extends _BindValueBuilder<String> {
-  final Iterable<RegExpMatch> matches;
+class _InlineVariableBuilder extends _BindValueBuilder<String?> {
+  final Iterable<RegExpMatch>? matches;
 
   _InlineVariableBuilder(
-      {this.matches, String data, ProxyMirror proxyMirror, BindingData binding})
-      : super(data, proxyMirror, binding) {
-    matches.forEach((e) {
-      final bindProp = binding?.bindDataOf(e.group(0).substring(1));
-      if (bindProp is ValueNotifier) {
-        _watchedProps.add(bindProp);
+      {this.matches,
+      String? data,
+      ProxyMirror? proxyMirror,
+      BindingData? binding})
+      : super(data, proxyMirror, binding, null) {
+    matches?.forEach((e) {
+      var str = e.group(0)?.substring(1);
+      if (str != null) {
+        final bindProp = binding?.bindDataOf(str);
+        if (bindProp is ValueNotifier) {
+          _watchedProps.add(bindProp);
+        }
       }
     });
     attach();
   }
 
   @override
-  String get value {
+  String? get value {
     var extract = data;
     matches
-        .map((e) => {
-              '0': binding?.bindDataOf(e.group(0).substring(1)),
+        ?.map((e) => {
+              '0': binding?.bindDataOf(e.group(0)!.substring(1)),
               '1': e.group(0)
             })
         .forEach((e) {
       var first = e['0'] is ValueNotifier ? e['0'].value : e['0'];
       if (first != null) {
-        extract = extract.replaceFirst(e['1'], '$first');
+        extract = extract?.replaceFirst(e['1'], '$first');
       }
     });
     return extract;
@@ -174,16 +184,16 @@ class _InlineVariableBuilder extends _BindValueBuilder<String> {
 }
 
 class _PropBuilder extends _BindValueBuilder {
-  _PropBuilder(String data, ValueNotifier prop, ProxyMirror proxyMirror,
-      BindingData binding)
-      : super(data, proxyMirror, binding) {
+  _PropBuilder(String? data, ValueNotifier prop, ProxyMirror? proxyMirror,
+      BindingData? binding)
+      : super(data, proxyMirror, binding,null) {
     _watchedProps.add(prop);
     attach();
   }
 
   @override
   dynamic get value {
-    final prop = binding?.bindDataOf(data);
+    final prop = binding?.bindDataOf(data!);
     return prop is ValueNotifier ? prop.value : prop;
   }
 }

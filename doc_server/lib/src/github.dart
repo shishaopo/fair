@@ -23,7 +23,7 @@ Middleware webHook() {
   var app = _router();
   return (Handler innerHandler) => (request) =>
       request.url.path.startsWith('github')
-          ? app.handler(request)
+          ? app.call(request)
           : innerHandler(request);
 }
 
@@ -59,7 +59,7 @@ void _retrySync() {
     _retryCount++;
     var seconds = 1 + pow(2, _retryCount);
     print('retry sync after $seconds s');
-    Future.delayed(Duration(seconds: seconds))
+    Future.delayed(Duration(seconds: seconds.toInt()))
         .then((value) => _syncRepo())
         .catchError((e) {
       _retrySync();

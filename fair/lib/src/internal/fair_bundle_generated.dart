@@ -82,16 +82,16 @@ class WidgetDataBuilder {
 }
 
 class WidgetDataObjectBuilder extends fb.ObjectBuilder {
-  final String _className;
-  final List<int> _data;
-  final List<int> _na;
-  final List<int> _pa;
+  final String? _className;
+  final List<int>? _data;
+  final List<int>? _na;
+  final List<int>? _pa;
 
   WidgetDataObjectBuilder({
-    String className,
-    List<int> data,
-    List<int> na,
-    List<int> pa,
+    String? className,
+    List<int>? data,
+    List<int>? na,
+    List<int>? pa,
   })  : _className = className,
         _data = data,
         _na = na,
@@ -127,7 +127,7 @@ class WidgetDataObjectBuilder extends fb.ObjectBuilder {
 
   /// Convenience method to serialize to byte list.
   @override
-  Uint8List toBytes([String fileIdentifier]) {
+  Uint8List toBytes([String? fileIdentifier]) {
     var fbBuilder = fb.Builder();
     var offset = finish(fbBuilder);
     return fbBuilder.finish(offset, fileIdentifier);

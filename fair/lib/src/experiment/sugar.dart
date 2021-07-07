@@ -13,16 +13,16 @@ class Sugar {
   static K ifRange<T, K>(
     T actual,
     List<T> expect, {
-    K trueValue,
-    K falseValue,
+    required K trueValue,
+    required K falseValue,
   }) =>
       expect.contains(actual) ? trueValue : falseValue;
 
   static K ifEqual<T, K>(
     T actual,
     T expect, {
-    K trueValue,
-    K falseValue,
+    required K trueValue,
+    required K falseValue,
   }) =>
       expect == actual ? trueValue : falseValue;
 
@@ -32,7 +32,7 @@ class Sugar {
   }
 
   /// Map operation without index
-  static List<T> map<T, E>(List<E> data, {T Function(E item) builder}) {
+  static List<T> map<T, E>(List<E> data, {required T Function(E item) builder}) {
     return data.mapEach((index, item) => builder(item));
   }
 

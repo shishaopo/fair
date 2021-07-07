@@ -1,1 +1,0 @@
-Widget mapping used by [fair], generated from Flutter v1.22.4

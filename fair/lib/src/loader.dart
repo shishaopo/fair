@@ -10,20 +10,20 @@ import 'internal/error_tips.dart';
 import 'render/decode.dart';
 
 class Loader {
-  Decoder _decoder;
+  Decoder? _decoder;
 
   Future<Widget> parse(BuildContext context,
-      {@required String page,
-      String url,
-      @required Map<String, dynamic> data}) async {
+      {required String page,
+      required String? url,
+      required Map<String, dynamic>? data}) async {
     // Cache decoder for same state instance
     if (_decoder == null) {
       _decoder = Decoder(page, url: url, dataSource: data);
-      await _decoder.resolve(context);
+      await _decoder!.resolve(context);
     }
     Widget widget;
     try {
-      widget = _decoder.toWidget(context);
+      widget = _decoder!.toWidget(context);
       return widget;
     } catch (e) {
       widget = WarningWidget(name: page, url: url, error: e);

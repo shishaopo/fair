@@ -7,11 +7,11 @@
 import 'package:flutter/widgets.dart';
 
 class WarningWidget extends StatelessWidget {
-  final String name;
-  final String url;
+  final String? name;
+  final String? url;
   final dynamic error;
 
-  const WarningWidget({Key key, this.name, this.url, this.error})
+  const WarningWidget({Key? key, this.name, this.url, this.error})
       : super(key: key);
 
   @override

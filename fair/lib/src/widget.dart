@@ -26,16 +26,16 @@ import 'type.dart';
 class FairWidget extends StatefulWidget {
   /// Unique widget name. If this name is registered with [FairApp.widget], the [path] can be omitted.
   /// If the same bundle is reuse with different data the name should appended with suffix, eg: $name-$data.hashcode
-  final String name;
+  final String? name;
 
   /// Bundle path asset|url.
   /// Also see:
   ///
   /// * [name], unique name binds to this FairWidget
-  final String path;
+  final String? path;
 
   /// Optional, data source relate to this FairWidget.
-  final Map<String, dynamic> data;
+  final Map<String, dynamic>? data;
 
   /// Optional, provide the loading widget before real content is ready.
   /// Will use the placeholder configured with [FairApp] if it's not provided.
@@ -43,19 +43,19 @@ class FairWidget extends StatefulWidget {
   /// Also see:
   ///
   /// * [FairApp.placeholderBuilder], global placeholder for [FairApp]
-  final WidgetBuilder holder;
+  final WidgetBuilder? holder;
 
   /// Optional delegate for the fair bundle
   /// Also see:
   ///
   /// * delegate of [FairApp]
-  final FairDelegate delegate;
+  final FairDelegate? delegate;
 
   /// Work with [AutomaticKeepAliveClientMixin], usually for TabBar
   final bool wantKeepAlive;
 
   FairWidget({
-    Key key,
+    Key? key,
     this.name,
     this.path,
     this.data,
@@ -91,20 +91,20 @@ class FairWidget extends StatefulWidget {
 
 class FairState extends State<FairWidget>
     with Loader, AutomaticKeepAliveClientMixin<FairWidget> {
-  Widget _child;
-  FairApp _fairApp;
-  String bundleType;
+  Widget? _child;
+  FairApp? _fairApp;
+  String? bundleType;
 
   // None nullable
-  FairDelegate delegate;
+  FairDelegate? delegate;
 
   @override
   void initState() {
     super.initState();
     delegate = widget.delegate ??
         GlobalState.of(widget.name).call(context, widget.data);
-    delegate._bindState(this);
-    delegate.initState();
+    delegate?._bindState(this);
+    delegate?.initState();
   }
 
   @override
@@ -123,8 +123,8 @@ class FairState extends State<FairWidget>
 
   void _reload() {
     var name = state2key;
-    var path = widget.path ?? _fairApp.pathOfBundle(widget.name);
-    bundleType = widget.path != null && widget.path.startsWith('http')
+    var path = widget.path ?? _fairApp?.pathOfBundle(widget.name);
+    bundleType = widget.path != null && widget.path!.startsWith('http')
         ? 'Http'
         : 'Asset';
     parse(context, page: name, url: path, data: widget.data).then((value) {
@@ -138,9 +138,9 @@ class FairState extends State<FairWidget>
   Widget build(BuildContext context) {
     super.build(context);
     assert(_fairApp != null, 'FairWidget must be descendant of FairApp');
-    var builder = widget.holder ?? _fairApp.placeholderBuilder;
+    var builder = widget.holder ?? _fairApp!.placeholderBuilder;
     var result = _child ?? builder(context);
-    if (!kReleaseMode && _fairApp.debugShowFairBanner) {
+    if (!kReleaseMode && _fairApp!.debugShowFairBanner) {
       result = _CheckedModeBanner(bundleType, child: result);
     }
     return result;
@@ -157,13 +157,13 @@ class FairState extends State<FairWidget>
   }
 
   String get state2key =>
-      widget.name ?? widget.key.toString() ?? '${toStringShort()}#$hashCode';
+      widget.name ?? widget.key?.toString() ?? '${toStringShort()}#$hashCode';
 }
 
 /// Delegate for business logic. The delegate share similar life-circle with [State].
 class FairDelegate {
-  FairState _state;
-  String _key;
+  FairState? _state;
+  String? _key;
 
   void _bindState(FairState state) {
     assert(state != null, 'FairState should not be null');
@@ -174,14 +174,14 @@ class FairDelegate {
   /// state change can rebuild the widget tree, which can lead to DSL rebuild.
   /// Usually this can cost several milliseconds depend on the complexity of DSL.
   void setState(VoidCallback fn) {
-    if (_state == null || !_state.mounted) return;
+    if (_state == null || !_state!.mounted) return;
     // ignore: invalid_use_of_protected_member
-    _state.setState(fn);
-    _state._reload();
+    _state?.setState(fn);
+    _state?._reload();
   }
 
-  BuildContext get context {
-    return _state.context;
+  BuildContext? get context {
+    return _state?.context;
   }
 
   Map<String, PropertyValue> bindValue() {
@@ -190,11 +190,11 @@ class FairDelegate {
 
   Map<String, Function> bindFunction() {
     var func = <String, Function>{};
-    func['Sugar.paddingTop'] = (props) => Sugar.paddingTop(context);
-    func['Sugar.paddingBottom'] = (props) => Sugar.paddingBottom(context);
-    func['Sugar.height'] = (props) => Sugar.height(context);
-    func['Sugar.width'] = (props) => Sugar.width(context);
-    func['Sugar.requestFocus'] = (props) => Sugar.requestFocus(context);
+    func['Sugar.paddingTop'] = (props) => Sugar.paddingTop(context!);
+    func['Sugar.paddingBottom'] = (props) => Sugar.paddingBottom(context!);
+    func['Sugar.height'] = (props) => Sugar.height(context!);
+    func['Sugar.width'] = (props) => Sugar.width(context!);
+    func['Sugar.requestFocus'] = (props) => Sugar.requestFocus(context!);
     func['Sugar.onTapEmpty'] = (props) => Sugar.onTapEmpty();
     return func;
   }
@@ -207,7 +207,7 @@ class FairDelegate {
 
   void dispose() {}
 
-  String key() {
+  String? key() {
     return _key;
   }
 }
@@ -217,7 +217,7 @@ class FairDelegate {
 /// Does nothing in release mode.
 class _CheckedModeBanner extends StatelessWidget {
   /// Creates a const checked banner.
-  const _CheckedModeBanner(this.appendix, {Key key, @required this.child})
+  const _CheckedModeBanner(this.appendix, {Key? key, required this.child})
       : super(key: key);
 
   /// The widget to show behind the banner.
@@ -226,7 +226,7 @@ class _CheckedModeBanner extends StatelessWidget {
   final Widget child;
 
   /// Type indicator
-  final String appendix;
+  final String? appendix;
 
   @override
   Widget build(BuildContext context) {

@@ -22,7 +22,10 @@ dependencies:
   dart_style: ^2.0.1
   glob: ^2.0.1
   pedantic: ^1.8.0
-  fair_annotation: ^0.2.0
+  fair_annotation:
+    git:
+      url: https://github.com/shishaopo/fair.git
+      path: fair_annotation
   http: ^0.13.3
 
 dev_dependencies:
