@@ -43,7 +43,7 @@ class BindingProvider with $BindingImpl {
   Map<String, dynamic> get binding => _binding;
 
   bool preload(List<String> tags) {
-    tags?.forEach((element) {
+    tags.forEach((element) {
       log('[Fair] preload $element...');
       loadTag(element);
     });
