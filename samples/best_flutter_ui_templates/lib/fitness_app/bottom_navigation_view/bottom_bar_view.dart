@@ -218,7 +218,7 @@ class _TabIconsState extends State<TabIcons> with TickerProviderStateMixin {
     )..addStatusListener((AnimationStatus status) {
         if (status == AnimationStatus.completed) {
           if (!mounted) return;
-          widget?.removeAllSelect?.call();
+          widget.removeAllSelect?.call();
           widget.tabIconData?.animationController?.reverse();
         }
       });

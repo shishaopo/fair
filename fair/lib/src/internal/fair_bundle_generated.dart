@@ -8,10 +8,12 @@
 // ignore_for_file: unused_import, unused_field, unused_local_variable
 
 import 'dart:typed_data' show Uint8List;
-import 'package:flat_buffers/flat_buffers.dart' as fb;
+
+import 'flat_buffer/flat_buffers.dart' as fb;
 
 class WidgetData {
   WidgetData._(this._bc, this._bcOffset);
+
   factory WidgetData(List<int> bytes) {
     var rootRef = fb.BufferContext.fromBytes(bytes);
     return reader.read(rootRef, 0);
@@ -22,13 +24,16 @@ class WidgetData {
   final fb.BufferContext _bc;
   final int _bcOffset;
 
-  String get className =>
-      const fb.StringReader().vTableGet(_bc, _bcOffset, 4, null);
-  List<int> get data => const fb.ListReader<int>(fb.Uint8Reader())
+  String? get className =>
+      const fb.StringReader().vTableGet(_bc, _bcOffset, 4, '');
+
+  List<int>? get data => const fb.ListReader<int>(fb.Uint8Reader())
       .vTableGet(_bc, _bcOffset, 6, null);
-  List<int> get na => const fb.ListReader<int>(fb.Uint8Reader())
+
+  List<int>? get na => const fb.ListReader<int>(fb.Uint8Reader())
       .vTableGet(_bc, _bcOffset, 8, null);
-  List<int> get pa => const fb.ListReader<int>(fb.Uint8Reader())
+
+  List<int>? get pa => const fb.ListReader<int>(fb.Uint8Reader())
       .vTableGet(_bc, _bcOffset, 10, null);
 
   @override
@@ -103,11 +108,11 @@ class WidgetDataObjectBuilder extends fb.ObjectBuilder {
     assert(fbBuilder != null);
     final classNameOffset = fbBuilder.writeString(_className);
     final dataOffset =
-        _data?.isNotEmpty == true ? fbBuilder.writeListUint8(_data) : null;
+        _data?.isNotEmpty == true ? fbBuilder.writeListUint8(_data!) : null;
     final naOffset =
-        _na?.isNotEmpty == true ? fbBuilder.writeListUint8(_na) : null;
+        _na?.isNotEmpty == true ? fbBuilder.writeListUint8(_na!) : null;
     final paOffset =
-        _pa?.isNotEmpty == true ? fbBuilder.writeListUint8(_pa) : null;
+        _pa?.isNotEmpty == true ? fbBuilder.writeListUint8(_pa!) : null;
 
     fbBuilder.startTable();
     if (classNameOffset != null) {

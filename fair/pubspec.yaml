@@ -18,11 +18,6 @@ dependencies:
     git:
       url: https://github.com/shishaopo/fair.git
       path: fair_version/flutter_2_2_3
-  flat_buffers:
-    git:
-      url: https://github.com/google/flatbuffers.git
-      path: dart
-      ref: v2.0.0
   url_launcher: ^6.0.9
   http: ^0.13.3
 
